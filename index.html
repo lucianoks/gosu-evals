@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GosuCoder Coding Agent & Model Evals - October 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+        transition: background 0.3s;
+      }
+
+      body.dark-mode {
+        background: #1a1a1a;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        position: relative;
+        transition: background 0.3s, color 0.3s;
+      }
+
+      body.dark-mode .container {
+        background: #2d2d2d;
+        color: #e0e0e0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      }
+
+      .header-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        color: #333;
+        margin: 0;
+        font-size: 28px;
+        transition: color 0.3s;
+      }
+
+      body.dark-mode h1 {
+        color: #e0e0e0;
+      }
+
+      .dark-mode-toggle {
+        background: #4caf50;
+        border: none;
+        color: white;
+        padding: 10px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s, transform 0.2s;
+      }
+
+      .dark-mode-toggle:hover {
+        background: #45a049;
+        transform: scale(1.1);
+      }
+
+      body.dark-mode .dark-mode-toggle {
+        background: #666;
+      }
+
+      body.dark-mode .dark-mode-toggle:hover {
+        background: #777;
+        transform: scale(1.1);
+      }
+
+      .filters-container {
+        margin-bottom: 20px;
+      }
+
+      .filters-toggle {
+        width: 100%;
+        padding: 10px 16px;
+        background: transparent;
+        color: #666;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 0.3s;
+      }
+
+      .filters-toggle:hover {
+        background: #f5f5f5;
+        border-color: #bbb;
+        color: #333;
+      }
+
+      body.dark-mode .filters-toggle {
+        background: transparent;
+        border-color: #555;
+        color: #b0b0b0;
+      }
+
+      body.dark-mode .filters-toggle:hover {
+        background: #3a3a3a;
+        border-color: #777;
+        color: #e0e0e0;
+      }
+
+      .filters-toggle-icon {
+        font-size: 14px;
+        transition: transform 0.3s;
+        opacity: 0.6;
+      }
+
+      .filters-toggle-icon.collapsed {
+        transform: rotate(-90deg);
+      }
+
+      .filters {
+        display: flex;
+        gap: 20px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+      }
+
+      .filters.collapsed {
+        max-height: 0;
+        opacity: 0;
+        margin-top: 0;
+      }
+
+      .filters.expanded {
+        max-height: 1000px;
+        opacity: 1;
+      }
+
+      .filter-section {
+        flex: 1;
+        min-width: 280px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        padding: 15px;
+        border: 1px solid #e0e0e0;
+        transition: background 0.3s, border-color 0.3s;
+      }
+
+      body.dark-mode .filter-section {
+        background: #3a3a3a;
+        border-color: #555;
+      }
+
+      .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .filter-title {
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+        transition: color 0.3s;
+      }
+
+      body.dark-mode .filter-title {
+        color: #e0e0e0;
+      }
+
+      .filter-count {
+        font-size: 12px;
+        color: #666;
+        background: #e0e0e0;
+        padding: 2px 8px;
+        border-radius: 10px;
+        transition: background 0.3s, color 0.3s;
+      }
+
+      body.dark-mode .filter-count {
+        background: #555;
+        color: #e0e0e0;
+      }
+
+      .filter-actions {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .filter-btn {
+        padding: 4px 12px;
+        font-size: 12px;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .filter-btn:hover {
+        background: #f0f0f0;
+        border-color: #4caf50;
+      }
+
+      body.dark-mode .filter-btn {
+        background: #555;
+        border-color: #666;
+        color: #e0e0e0;
+      }
+
+      body.dark-mode .filter-btn:hover {
+        background: #666;
+        border-color: #4caf50;
+      }
+
+      .filter-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .filter-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 14px;
+        border-radius: 16px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.2s;
+        border: 2px solid #4CAF50;
+        background: transparent;
+        color: #4CAF50;
+      }
+
+      .filter-chip:hover {
+        background: #e8f5e9;
+        transform: translateY(-1px);
+      }
+
+      .filter-chip.selected {
+        background: #4CAF50;
+        color: white;
+      }
+
+      .filter-chip.selected:hover {
+        background: #45a049;
+      }
+
+      body.dark-mode .filter-chip {
+        border-color: #66bb6a;
+        color: #66bb6a;
+      }
+
+      body.dark-mode .filter-chip:hover {
+        background: #2d4a2f;
+      }
+
+      body.dark-mode .filter-chip.selected {
+        background: #66bb6a;
+        color: #1a1a1a;
+      }
+
+      body.dark-mode .filter-chip.selected:hover {
+        background: #81c784;
+      }
+
+      .stats {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #e8f5e9;
+        border-radius: 6px;
+        transition: background 0.3s;
+      }
+
+      body.dark-mode .stats {
+        background: #3a4a3a;
+      }
+
+      .stat {
+        font-size: 14px;
+        color: #555;
+        transition: color 0.3s;
+      }
+
+      body.dark-mode .stat {
+        color: #b0b0b0;
+      }
+
+      .stat strong {
+        color: #2e7d32;
+        font-size: 18px;
+        transition: color 0.3s;
+      }
+
+      body.dark-mode .stat strong {
+        color: #66bb6a;
+      }
+
+      .chart-container {
+        position: relative;
+        overflow-x: auto;
+      }
+
+      .bar-chart {
+        min-width: 800px;
+      }
+
+      @media (max-width: 768px) {
+        .bar-chart {
+          min-width: 100%;
+        }
+      }
+
+      .bar-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        transition: opacity 0.3s;
+        padding-right: 100px;
+      }
+
+      .chart-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #4caf50;
+        padding-right: 100px;
+        font-weight: 700;
+        color: #333;
+      }
+
+      .header-agent,
+      .header-model,
+      .header-score {
+        cursor: pointer;
+        user-select: none;
+        transition: color 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .header-agent:hover,
+      .header-model:hover,
+      .header-score:hover {
+        color: #4caf50;
+      }
+
+      body.dark-mode .chart-header {
+        color: #e0e0e0;
+      }
+
+      .header-agent {
+        width: 120px;
+        padding-right: 10px;
+        text-align: right;
+        justify-content: flex-end;
+        flex-shrink: 0;
+      }
+
+      .header-model {
+        width: 140px;
+        padding-right: 15px;
+        text-align: right;
+        justify-content: flex-end;
+        flex-shrink: 0;
+      }
+
+      .header-score {
+        width: 80px;
+        text-align: left;
+        flex-shrink: 0;
+      }
+
+      .sort-indicator {
+        font-size: 10px;
+        opacity: 0.6;
+      }
+
+      .bar-agent {
+        width: 120px;
+        font-size: 13px;
+        color: #333;
+        padding-right: 10px;
+        text-align: right;
+        flex-shrink: 0;
+        font-weight: 600;
+        transition: color 0.3s;
+      }
+
+      body.dark-mode .bar-agent {
+        color: #e0e0e0;
+      }
+
+      .bar-model {
+        width: 140px;
+        font-size: 12px;
+        color: #666;
+        padding-right: 15px;
+        text-align: right;
+        flex-shrink: 0;
+        transition: color 0.3s;
+      }
+
+      body.dark-mode .bar-model {
+        color: #b0b0b0;
+      }
+
+      .model-chip {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 500;
+        color: white;
+        white-space: nowrap;
+      }
+
+      .model-chip.sonnet-4-5 {
+        background: linear-gradient(135deg, #e67e00, #f57c00);
+      }
+      .model-chip.gpt-5-codex {
+        background: linear-gradient(135deg, #424242, #616161);
+      }
+      .model-chip.glm-4-6 {
+        background: linear-gradient(135deg, #d32f2f, #e53935);
+      }
+      .model-chip.grokcodefast {
+        background: linear-gradient(135deg, #1976d2, #1e88e5);
+      }
+      .model-chip.kimi-2 {
+        background: linear-gradient(135deg, #7b1fa2, #8e24aa);
+      }
+      .model-chip.gemini-2-5-pro {
+        background: linear-gradient(135deg, #0097a7, #00acc1);
+      }
+      .model-chip.deepseek {
+        background: linear-gradient(135deg, #546e7a, #607d8b);
+      }
+
+      .bar-wrapper {
+        flex: 1;
+        position: relative;
+        height: 24px;
+        max-width: calc(100% - 100px);
+      }
+
+      .bar {
+        height: 100%;
+        border-radius: 4px;
+        position: relative;
+        transition: all 0.3s;
+        max-width: 100%;
+      }
+
+      .bar:hover {
+        opacity: 0.8;
+        transform: scaleY(1.1);
+      }
+
+      .bar-value {
+        position: absolute;
+        left: calc(100% + 10px);
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 13px;
+        font-weight: 600;
+        color: #666;
+        white-space: nowrap;
+        min-width: 80px;
+        transition: color 0.3s;
+      }
+
+      body.dark-mode .bar-value {
+        color: #b0b0b0;
+      }
+
+      .bar-value.high-score {
+        color: #2e7d32;
+        font-weight: 700;
+      }
+
+      body.dark-mode .bar-value.high-score {
+        color: #66bb6a;
+      }
+
+      .mobile-score {
+        display: none;
+        font-size: 13px;
+        font-weight: 600;
+        color: #666;
+        text-align: right;
+        min-width: 70px;
+        transition: color 0.3s;
+      }
+
+      .mobile-score.high-score {
+        color: #2e7d32;
+        font-weight: 700;
+      }
+
+      /* Color coding by model */
+      .bar.sonnet-4-5 {
+        background: linear-gradient(90deg, #e67e00, #f57c00);
+      }
+      .bar.gpt-5-codex {
+        background: linear-gradient(90deg, #424242, #616161);
+      }
+      .bar.glm-4-6 {
+        background: linear-gradient(90deg, #d32f2f, #e53935);
+      }
+      .bar.grokcodefast {
+        background: linear-gradient(90deg, #1976d2, #1e88e5);
+      }
+      .bar.kimi-2 {
+        background: linear-gradient(90deg, #7b1fa2, #8e24aa);
+      }
+      .bar.gemini-2-5-pro {
+        background: linear-gradient(90deg, #0097a7, #00acc1);
+      }
+      .bar.deepseek {
+        background: linear-gradient(90deg, #546e7a, #607d8b);
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 30px;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 6px;
+        transition: background 0.3s;
+      }
+
+      body.dark-mode .legend {
+        background: #3a3a3a;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #333;
+        transition: color 0.3s;
+      }
+
+      body.dark-mode .legend-item {
+        color: #ffffff;
+      }
+
+      .legend-color {
+        width: 30px;
+        height: 16px;
+        border-radius: 3px;
+      }
+
+      .disclaimer {
+        margin-top: 40px;
+        padding: 20px;
+        background: #f9f9f9;
+        border-left: 4px solid #4caf50;
+        border-radius: 4px;
+        font-size: 14px;
+        color: #555;
+        line-height: 1.6;
+        transition: background 0.3s, color 0.3s;
+      }
+
+      body.dark-mode .disclaimer {
+        background: #3a3a3a;
+        color: #ffffff;
+      }
+
+      .disclaimer strong {
+        color: #333;
+        transition: color 0.3s;
+      }
+
+      body.dark-mode .disclaimer strong {
+        color: #e0e0e0;
+      }
+
+      .disclaimer a {
+        color: #4caf50;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .disclaimer a:hover {
+        text-decoration: underline;
+      }
+
+      body.dark-mode .disclaimer a {
+        color: #66bb6a;
+      }
+
+      /* Mobile responsive styles */
+      @media (max-width: 768px) {
+        .bar-wrapper {
+          display: none;
+        }
+
+        .mobile-score {
+          display: block;
+          margin-left: auto;
+        }
+
+        .bar-item {
+          padding-right: 0;
+          margin: 0 10px 0 10px;
+          padding: 10px 0;
+          border-bottom: 1px solid #f0f0f0;
+          align-items: center;
+          min-height: 40px;
+        }
+
+        body.dark-mode .bar-item {
+          border-bottom-color: #3a3a3a;
+        }
+
+        .bar-item:last-child {
+          border-bottom: none;
+        }
+
+        body.dark-mode .mobile-score {
+          color: #b0b0b0;
+        }
+
+        body.dark-mode .mobile-score.high-score {
+          color: #66bb6a;
+        }
+
+        .bar-agent {
+          width: 85px;
+          font-size: 12px;
+          padding-right: 8px;
+        }
+
+        .bar-model {
+          width: 140px;
+          font-size: 11px;
+          padding-right: 8px;
+        }
+
+        .mobile-score {
+          display: block;
+          margin-left: auto;
+          text-align: left;
+        }
+
+        .header-agent {
+          width: 85px;
+          padding-right: 8px;
+        }
+
+        .header-model {
+          width: 140px;
+          padding-right: 8px;
+        }
+
+        .header-score {
+          margin-left: auto;
+          width: 70px;
+          text-align: left;
+        }
+
+        .chart-header {
+          padding-right: 0;
+          margin: 0 10px 15px 10px;
+        }
+
+        .legend {
+          display: none;
+        }
+
+        .stats {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .container {
+          padding: 15px 5px;
+        }
+
+        h1 {
+          font-size: 20px;
+          padding: 0 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-wrapper">
+        <h1>🤖 GosuCoder Coding Agent & Model Evals<br />October 2025</h1>
+        <button
+          class="dark-mode-toggle"
+          onclick="toggleDarkMode()"
+          title="Toggle dark mode"
+        >
+          <span id="darkModeIcon">🌙</span>
+        </button>
+      </div>
+
+      <div class="filters-container">
+        <button class="filters-toggle" onclick="toggleFilters()">
+          <span>Filters</span>
+          <span class="filters-toggle-icon collapsed" id="filtersIcon">▼</span>
+        </button>
+
+        <div class="filters collapsed" id="filtersContent">
+          <div class="filter-section">
+            <div class="filter-header">
+              <span class="filter-title">Choose Agents</span>
+              <span class="filter-count" id="agentCount">0/0</span>
+            </div>
+            <div class="filter-actions">
+              <button class="filter-btn" onclick="selectAllAgents()">
+                Select All
+              </button>
+              <button class="filter-btn" onclick="selectNoneAgents()">
+                Select None
+              </button>
+            </div>
+            <div class="filter-options" id="agentFilters"></div>
+          </div>
+
+          <div class="filter-section">
+            <div class="filter-header">
+              <span class="filter-title">Choose Models</span>
+              <span class="filter-count" id="modelCount">0/0</span>
+            </div>
+            <div class="filter-actions">
+              <button class="filter-btn" onclick="selectAllModels()">
+                Select All
+              </button>
+              <button class="filter-btn" onclick="selectNoneModels()">
+                Select None
+              </button>
+            </div>
+            <div class="filter-options" id="modelFilters"></div>
+          </div>
+
+          <div class="filter-section">
+            <div class="filter-header">
+              <span class="filter-title">Score Threshold</span>
+            </div>
+            <div class="filter-options">
+              <div class="filter-chip selected" id="score-all" onclick="toggleScoreFilter('all')">
+                All scores
+              </div>
+              <div class="filter-chip" id="score-20000" onclick="toggleScoreFilter('20000')">
+                Score > 20,000
+              </div>
+              <div class="filter-chip" id="score-25000" onclick="toggleScoreFilter('25000')">
+                Score > 25,000
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          Showing: <strong id="visibleCount">0</strong> /
+          <strong id="totalCount">0</strong>
+        </div>
+        <div class="stat">Avg Score: <strong id="avgScore">0</strong></div>
+        <div class="stat">Max Score: <strong id="maxScore">0</strong></div>
+      </div>
+
+      <div class="chart-container">
+        <div class="bar-chart" id="barChart"></div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <div
+            class="legend-color"
+            style="background: linear-gradient(90deg, #e67e00, #f57c00)"
+          ></div>
+          <span>Sonnet 4.5</span>
+        </div>
+        <div class="legend-item">
+          <div
+            class="legend-color"
+            style="background: linear-gradient(90deg, #424242, #616161)"
+          ></div>
+          <span>GPT-5 Codex</span>
+        </div>
+        <div class="legend-item">
+          <div
+            class="legend-color"
+            style="background: linear-gradient(90deg, #d32f2f, #e53935)"
+          ></div>
+          <span>GLM 4.6</span>
+        </div>
+        <div class="legend-item">
+          <div
+            class="legend-color"
+            style="background: linear-gradient(90deg, #1976d2, #1e88e5)"
+          ></div>
+          <span>GrokCodeFast</span>
+        </div>
+        <div class="legend-item">
+          <div
+            class="legend-color"
+            style="background: linear-gradient(90deg, #7b1fa2, #8e24aa)"
+          ></div>
+          <span>Kimi-2</span>
+        </div>
+        <div class="legend-item">
+          <div
+            class="legend-color"
+            style="background: linear-gradient(90deg, #0097a7, #00acc1)"
+          ></div>
+          <span>Gemini 2.5 Pro</span>
+        </div>
+        <div class="legend-item">
+          <div
+            class="legend-color"
+            style="background: linear-gradient(90deg, #546e7a, #607d8b)"
+          ></div>
+          <span>Deepseek</span>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        <strong>📊 Data Source:</strong> This evaluation result is from the
+        amazing <strong>GosuCoder</strong> YouTube channel. Watch the full
+        analysis in this video:
+        <a
+          href="https://www.youtube.com/watch?v=sslJ9ovlfhM"
+          target="_blank"
+          rel="noopener noreferrer"
+          >https://www.youtube.com/watch?v=sslJ9ovlfhM</a
+        >
+        <br /><br />
+        For official and up-to-date results, visit:
+        <a
+          href="https://gosuevals.com/agents.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          >https://gosuevals.com/agents.html</a
+        >
+        <br /><br />
+        <strong>💻 Project Info:</strong> This interactive visualization was
+        vibe-coded using <strong>Roo Code + Sonnet 4.5</strong> and is open
+        sourced at:
+        <a
+          href="https://github.com/lucianoks/gosu-evals"
+          target="_blank"
+          rel="noopener noreferrer"
+          >https://github.com/lucianoks/gosu-evals</a
+        >
+      </div>
+    </div>
+
+    <script>
+      // Data extracted from the graph
+      const data = [
+        {
+          label: "Zed-Sonnet 4.5",
+          agent: "Zed",
+          model: "Sonnet 4.5",
+          score: 27034.0,
+        },
+        {
+          label: "Warp.dev-Sonnet 4.5",
+          agent: "Warp.dev",
+          model: "Sonnet 4.5",
+          score: 27024.0,
+        },
+        {
+          label: "ClaudeCode-Sonnet 4.5",
+          agent: "ClaudeCode",
+          model: "Sonnet 4.5",
+          score: 26930.0,
+        },
+        {
+          label: "RooCode-Sonnet 4.5",
+          agent: "RooCode",
+          model: "Sonnet 4.5",
+          score: 26874.0,
+        },
+        {
+          label: "RooCode-Sonnet 4.5 think",
+          agent: "RooCode",
+          model: "Sonnet 4.5 (think)",
+          score: 26874.0,
+        },
+        {
+          label: "CodexCLI-GPT 5 Codex High",
+          agent: "CodexCLI",
+          model: "GPT 5 Codex (High)",
+          score: 26734.0,
+        },
+        {
+          label: "FactoryCLI-Sonnet 4.5 Med",
+          agent: "FactoryCLI",
+          model: "Sonnet 4.5 (Med)",
+          score: 26574.0,
+        },
+        {
+          label: "CodexCLI-GPT 5 Codex Med",
+          agent: "CodexCLI",
+          model: "GPT 5 Codex (Med)",
+          score: 26218.0,
+        },
+        {
+          label: "Zed-GLM 4.6",
+          agent: "Zed",
+          model: "GLM 4.6",
+          score: 26074.0,
+        },
+        {
+          label: "Cursor-Sonnet 4.5",
+          agent: "Cursor",
+          model: "Sonnet 4.5",
+          score: 26052.0,
+        },
+        {
+          label: "Copilot-Sonnet 4.5",
+          agent: "Copilot",
+          model: "Sonnet 4.5",
+          score: 26030.0,
+        },
+        {
+          label: "Windsurf-GPT 5 Codex Med",
+          agent: "Windsurf",
+          model: "GPT 5 Codex (Med)",
+          score: 25850.0,
+        },
+        {
+          label: "opencode-Sonnet 4.5",
+          agent: "opencode",
+          model: "Sonnet 4.5",
+          score: 25634.0,
+        },
+        {
+          label: "Warp.dev-GPT 5 Med",
+          agent: "Warp.dev",
+          model: "GPT 5 (Med)",
+          score: 25418.0,
+        },
+        {
+          label: "CodexCLI-GPT 5 Med",
+          agent: "CodexCLI",
+          model: "GPT 5 (Med)",
+          score: 25334.0,
+        },
+        {
+          label: "Crush-GLM 4.6",
+          agent: "Crush",
+          model: "GLM 4.6",
+          score: 25082.0,
+        },
+        {
+          label: "Crush-Sonnet 4.5",
+          agent: "Crush",
+          model: "Sonnet 4.5",
+          score: 25074.0,
+        },
+        {
+          label: "FactoryCLI-GPT 5 Codex Med",
+          agent: "FactoryCLI",
+          model: "GPT 5 Codex (Med)",
+          score: 25042.0,
+        },
+        {
+          label: "FactoryCLI-Sonnet 4.5",
+          agent: "FactoryCLI",
+          model: "Sonnet 4.5",
+          score: 24934.0,
+        },
+        {
+          label: "AugmentCLI-Sonnet 4.5",
+          agent: "AugmentCLI",
+          model: "Sonnet 4.5",
+          score: 24854.0,
+        },
+        {
+          label: "Windsurf-Sonnet 4.5",
+          agent: "Windsurf",
+          model: "Sonnet 4.5",
+          score: 24654.0,
+        },
+        {
+          label: "RooCode-GLM 4.6",
+          agent: "RooCode",
+          model: "GLM 4.6",
+          score: 24474.0,
+        },
+        {
+          label: "RooCode-GrokCodeFast",
+          agent: "RooCode",
+          model: "GrokCodeFast",
+          score: 24470.0,
+        },
+        {
+          label: "Windsurf-Kimi-2",
+          agent: "Windsurf",
+          model: "Kimi-2",
+          score: 24241.0,
+        },
+        {
+          label: "CodexCLI-GPT 5 High",
+          agent: "CodexCLI",
+          model: "GPT 5 (High)",
+          score: 24110.0,
+        },
+        {
+          label: "opencode GPT 5 Codex Med",
+          agent: "opencode",
+          model: "GPT 5 Codex (Med)",
+          score: 24050.0,
+        },
+        {
+          label: "Copilot-GrokCodeFast",
+          agent: "Copilot",
+          model: "GrokCodeFast",
+          score: 23814.0,
+        },
+        {
+          label: "RooCode-GLM 4.5",
+          agent: "RooCode",
+          model: "GLM 4.5",
+          score: 23730.0,
+        },
+        {
+          label: "opencode-GLM 4.6",
+          agent: "opencode",
+          model: "GLM 4.6",
+          score: 23554.0,
+        },
+        {
+          label: "Cursor-GrokCodeFast",
+          agent: "Cursor",
+          model: "GrokCodeFast",
+          score: 23270.0,
+        },
+        {
+          label: "Windsurf-GrokCodeFast",
+          agent: "Windsurf",
+          model: "GrokCodeFast",
+          score: 23154.0,
+        },
+        {
+          label: "GeminiCLI-Gemini 2.5 Pro",
+          agent: "GeminiCLI",
+          model: "Gemini 2.5 Pro",
+          score: 22662.0,
+        },
+        {
+          label: "Copilot-GPT 5 Codex",
+          agent: "Copilot",
+          model: "GPT 5 Codex",
+          score: 21116.0,
+        },
+        {
+          label: "Cursor-GPT 5 Codex",
+          agent: "Cursor",
+          model: "GPT 5 Codex",
+          score: 20564.0,
+        },
+        {
+          label: "opencode-Deepseek v3.1",
+          agent: "opencode",
+          model: "Deepseek v3.1",
+          score: 19784.0,
+        },
+        {
+          label: "Zed-GPT 5 Codex Med",
+          agent: "Zed",
+          model: "GPT 5 Codex (Med)",
+          score: 19388.0,
+        },
+        {
+          label: "Crush-GPT 5 Codex Med",
+          agent: "Crush",
+          model: "GPT 5 Codex (Med)",
+          score: 19370.0,
+        },
+        {
+          label: "Crush-GrokCodeFast",
+          agent: "Crush",
+          model: "GrokCodeFast",
+          score: 19114.0,
+        },
+        {
+          label: "RooCode-GPT 5 Codex Med",
+          agent: "RooCode",
+          model: "GPT 5 Codex (Med)",
+          score: 18874.0,
+        },
+        {
+          label: "opencode-GrokCodeFast",
+          agent: "opencode",
+          model: "GrokCodeFast",
+          score: 15220.0,
+        },
+        {
+          label: "Zed-GrokCodeFast",
+          agent: "Zed",
+          model: "GrokCodeFast",
+          score: 13554.0,
+        },
+        {
+          label: "opencode-Kimi-2-0905",
+          agent: "opencode",
+          model: "Kimi-2-0905",
+          score: 0.0,
+        },
+        {
+          label: "RooCode-Deepseek v3.2",
+          agent: "RooCode",
+          model: "Deepseek v3.2",
+          score: 0.0,
+        },
+        {
+          label: "Copilot-Deepseek v3.2",
+          agent: "Copilot",
+          model: "Deepseek v3.2",
+          score: 0.0,
+        },
+        {
+          label: "opencode-Deepseek v3.2",
+          agent: "opencode",
+          model: "Deepseek v3.2",
+          score: 0.0,
+        },
+        {
+          label: "Cursor-Deepseek v3.1",
+          agent: "Cursor",
+          model: "Deepseek v3.1",
+          score: 0.0,
+        },
+      ];
+
+      let currentSort = "score";
+      let sortDirection = { agent: "asc", model: "asc", score: "desc" };
+      let selectedAgents = new Set();
+      let selectedModels = new Set();
+      let scoreThreshold = "all";
+
+      // Get unique agents and models
+      const agents = [...new Set(data.map((d) => d.agent))].sort();
+      const models = [...new Set(data.map((d) => d.model))].sort();
+
+      // Initialize filters
+      function initializeFilters() {
+        // Initialize all as selected
+        agents.forEach((agent) => selectedAgents.add(agent));
+        models.forEach((model) => selectedModels.add(model));
+
+        // Populate agent filters
+        const agentFilters = document.getElementById("agentFilters");
+        agents.forEach((agent) => {
+          const chip = document.createElement("div");
+          chip.className = "filter-chip selected";
+          chip.id = `agent-${agent}`;
+          chip.textContent = agent;
+          chip.onclick = () => toggleAgent(agent);
+          agentFilters.appendChild(chip);
+        });
+
+        // Populate model filters
+        const modelFilters = document.getElementById("modelFilters");
+        models.forEach((model) => {
+          const chip = document.createElement("div");
+          chip.className = "filter-chip selected";
+          const safeId = model.replace(/[^a-zA-Z0-9]/g, "-");
+          chip.id = `model-${safeId}`;
+          chip.textContent = model;
+          chip.onclick = () => toggleModel(model);
+          modelFilters.appendChild(chip);
+        });
+
+        updateFilterCounts();
+      }
+
+      function toggleAgent(agent) {
+        const chip = document.getElementById(`agent-${agent}`);
+        if (selectedAgents.has(agent)) {
+          selectedAgents.delete(agent);
+          chip.classList.remove('selected');
+        } else {
+          selectedAgents.add(agent);
+          chip.classList.add('selected');
+        }
+        updateFilterCounts();
+        updateDisplay();
+      }
+
+      function toggleModel(model) {
+        const safeId = model.replace(/[^a-zA-Z0-9]/g, "-");
+        const chip = document.getElementById(`model-${safeId}`);
+        if (selectedModels.has(model)) {
+          selectedModels.delete(model);
+          chip.classList.remove('selected');
+        } else {
+          selectedModels.add(model);
+          chip.classList.add('selected');
+        }
+        updateFilterCounts();
+        updateDisplay();
+      }
+
+      function selectAllAgents() {
+        agents.forEach((agent) => {
+          selectedAgents.add(agent);
+          document.getElementById(`agent-${agent}`).classList.add('selected');
+        });
+        updateFilterCounts();
+        updateDisplay();
+      }
+
+      function selectNoneAgents() {
+        selectedAgents.clear();
+        agents.forEach((agent) => {
+          document.getElementById(`agent-${agent}`).classList.remove('selected');
+        });
+        updateFilterCounts();
+        updateDisplay();
+      }
+
+      function selectAllModels() {
+        models.forEach((model) => {
+          selectedModels.add(model);
+          const safeId = model.replace(/[^a-zA-Z0-9]/g, "-");
+          document.getElementById(`model-${safeId}`).classList.add('selected');
+        });
+        updateFilterCounts();
+        updateDisplay();
+      }
+
+      function selectNoneModels() {
+        selectedModels.clear();
+        models.forEach((model) => {
+          const safeId = model.replace(/[^a-zA-Z0-9]/g, "-");
+          document.getElementById(`model-${safeId}`).classList.remove('selected');
+        });
+        updateFilterCounts();
+        updateDisplay();
+      }
+
+      function toggleScoreFilter(threshold) {
+        // Remove selected class from all score chips
+        document.getElementById("score-all").classList.remove('selected');
+        document.getElementById("score-20000").classList.remove('selected');
+        document.getElementById("score-25000").classList.remove('selected');
+
+        // Add selected class to the clicked chip
+        document.getElementById(`score-${threshold}`).classList.add('selected');
+        scoreThreshold = threshold;
+
+        updateDisplay();
+      }
+
+      function toggleFilters() {
+        const filtersContent = document.getElementById("filtersContent");
+        const filtersIcon = document.getElementById("filtersIcon");
+
+        if (filtersContent.classList.contains("expanded")) {
+          filtersContent.classList.remove("expanded");
+          filtersContent.classList.add("collapsed");
+          filtersIcon.classList.add("collapsed");
+        } else {
+          filtersContent.classList.remove("collapsed");
+          filtersContent.classList.add("expanded");
+          filtersIcon.classList.remove("collapsed");
+        }
+      }
+
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        const isDark = document.body.classList.contains("dark-mode");
+
+        document.getElementById("darkModeIcon").textContent = isDark
+          ? "☀️"
+          : "🌙";
+
+        // Save preference
+        localStorage.setItem("darkMode", isDark);
+      }
+
+      function updateFilterCounts() {
+        document.getElementById(
+          "agentCount"
+        ).textContent = `${selectedAgents.size}/${agents.length}`;
+        document.getElementById(
+          "modelCount"
+        ).textContent = `${selectedModels.size}/${models.length}`;
+      }
+
+      function sortByColumn(column) {
+        // If clicking a different column, start with ascending (or descending for score)
+        if (currentSort !== column) {
+          currentSort = column;
+          sortDirection[column] = column === "score" ? "desc" : "asc";
+        } else {
+          // Toggle direction for the same column
+          sortDirection[column] =
+            sortDirection[column] === "asc" ? "desc" : "asc";
+        }
+        updateDisplay();
+      }
+
+      function getModelClass(model) {
+        if (model.includes("Sonnet")) return "sonnet-4-5";
+        if (model.includes("GPT")) return "gpt-5-codex";
+        if (model.includes("GLM")) return "glm-4-6";
+        if (model.includes("GrokCodeFast")) return "grokcodefast";
+        if (model.includes("Kimi")) return "kimi-2";
+        if (model.includes("Gemini")) return "gemini-2-5-pro";
+        if (model.includes("Deepseek")) return "deepseek";
+        return "";
+      }
+
+      function updateDisplay() {
+        // Filter data by selected agents, models, and score threshold
+        let filteredData = data.filter((item) => {
+          const agentMatch = selectedAgents.has(item.agent);
+          const modelMatch = selectedModels.has(item.model);
+
+          let scoreMatch = true;
+          if (scoreThreshold === "20000") {
+            scoreMatch = item.score > 20000;
+          } else if (scoreThreshold === "25000") {
+            scoreMatch = item.score > 25000;
+          }
+
+          return agentMatch && modelMatch && scoreMatch;
+        });
+
+        // Sort data with secondary sort by score
+        filteredData.sort((a, b) => {
+          let primary = 0;
+
+          if (currentSort === "agent") {
+            primary =
+              sortDirection.agent === "asc"
+                ? a.agent.localeCompare(b.agent)
+                : b.agent.localeCompare(a.agent);
+          } else if (currentSort === "model") {
+            primary =
+              sortDirection.model === "asc"
+                ? a.model.localeCompare(b.model)
+                : b.model.localeCompare(a.model);
+          } else if (currentSort === "score") {
+            primary =
+              sortDirection.score === "desc"
+                ? b.score - a.score
+                : a.score - b.score;
+          } else {
+            // Handle old sort format from dropdown
+            switch (currentSort) {
+              case "score-desc":
+                return b.score - a.score;
+              case "score-asc":
+                return a.score - b.score;
+              default:
+                return 0;
+            }
+          }
+
+          // Secondary sort by score (descending) if primary sort values are equal
+          if (primary === 0 && currentSort !== "score") {
+            return b.score - a.score;
+          }
+
+          return primary;
+        });
+
+        // Update stats
+        const maxScore =
+          filteredData.length > 0
+            ? Math.max(...filteredData.map((d) => d.score))
+            : 0;
+        const avgScore =
+          filteredData.length > 0
+            ? (
+                filteredData.reduce((sum, d) => sum + d.score, 0) /
+                filteredData.length
+              ).toFixed(2)
+            : 0;
+
+        document.getElementById("visibleCount").textContent =
+          filteredData.length;
+        document.getElementById("totalCount").textContent = data.length;
+        document.getElementById("avgScore").textContent =
+          avgScore.toLocaleString();
+        document.getElementById("maxScore").textContent =
+          maxScore.toLocaleString();
+
+        // Render chart
+        const barChart = document.getElementById("barChart");
+        barChart.innerHTML = "";
+
+        // Add header row
+        const headerRow = document.createElement("div");
+        headerRow.className = "chart-header";
+
+        const headerAgent = document.createElement("div");
+        headerAgent.className = "header-agent";
+        headerAgent.onclick = () => sortByColumn("agent");
+        headerAgent.innerHTML = `Agent ${
+          currentSort === "agent"
+            ? sortDirection.agent === "asc"
+              ? "▲"
+              : "▼"
+            : ""
+        }`;
+
+        const headerModel = document.createElement("div");
+        headerModel.className = "header-model";
+        headerModel.onclick = () => sortByColumn("model");
+        headerModel.innerHTML = `Model ${
+          currentSort === "model"
+            ? sortDirection.model === "asc"
+              ? "▲"
+              : "▼"
+            : ""
+        }`;
+
+        const headerScore = document.createElement("div");
+        headerScore.className = "header-score";
+        headerScore.onclick = () => sortByColumn("score");
+        headerScore.innerHTML = `Score ${
+          currentSort === "score"
+            ? sortDirection.score === "asc"
+              ? "▲"
+              : "▼"
+            : ""
+        }`;
+
+        headerRow.appendChild(headerAgent);
+        headerRow.appendChild(headerModel);
+        headerRow.appendChild(headerScore);
+        barChart.appendChild(headerRow);
+
+        filteredData.forEach((item) => {
+          const barItem = document.createElement("div");
+          barItem.className = "bar-item";
+
+          const barAgent = document.createElement("div");
+          barAgent.className = "bar-agent";
+          barAgent.textContent = item.agent;
+
+          const barModel = document.createElement("div");
+          barModel.className = "bar-model";
+
+          const modelChip = document.createElement("span");
+          modelChip.className = `model-chip ${getModelClass(item.model)}`;
+          modelChip.textContent = item.model;
+          barModel.appendChild(modelChip);
+
+          const barWrapper = document.createElement("div");
+          barWrapper.className = "bar-wrapper";
+
+          const bar = document.createElement("div");
+          bar.className = `bar ${getModelClass(item.model)}`;
+          const percentage = maxScore > 0 ? (item.score / maxScore) * 85 : 0;
+          bar.style.width = `${percentage}%`;
+
+          const barValue = document.createElement("div");
+          barValue.className = "bar-value";
+          if (item.score > 25000) {
+            barValue.classList.add("high-score");
+          }
+          barValue.textContent = item.score.toLocaleString();
+
+          bar.appendChild(barValue);
+          barWrapper.appendChild(bar);
+
+          // Create a separate score display for mobile
+          const mobileScore = document.createElement("div");
+          mobileScore.className = "mobile-score";
+          if (item.score > 25000) {
+            mobileScore.classList.add("high-score");
+          }
+          mobileScore.textContent = item.score.toLocaleString();
+
+          barItem.appendChild(barAgent);
+          barItem.appendChild(barModel);
+          barItem.appendChild(barWrapper);
+          barItem.appendChild(mobileScore);
+          barChart.appendChild(barItem);
+        });
+      }
+
+      // Load dark mode preference
+      if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+        document.getElementById("darkModeIcon").textContent = "☀️";
+      }
+
+      // Initial render
+      initializeFilters();
+      updateDisplay();
+    </script>
+  </body>
+</html>
